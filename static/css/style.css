@@ -1,0 +1,100 @@
+* {
+    box-sizing: border-box;
+    /*width와height 
+                             padding과 border크기를 포함하도록(margin값제외)*/
+}
+
+.all {
+    width: 900px;
+    /*모든 content를 가로 900px안에 넣을 것*/
+    margin: 0 auto;
+    /*좌, 우에 margin auto값을 주어 중앙에 오도록 */
+    height: 100vh;
+    text-align: center;
+    /*중앙 정렬*/
+}
+
+.icon {
+    position: relative;
+    /*absolut의 기준이 되는 상대적 포지션*/
+}
+
+input {
+    width: 100%;
+    height: 40px;
+    border-radius: 30px;
+    padding: 0 50px 0 50px;
+    border: 1.5px solid #EDEDED;
+    font-size: 16px;
+}
+
+.search {
+    position: absolute;
+    /*relative가 되는 부모 div .icon요소를 기준으로 */
+    top: 12px;
+    /*위에서 12px 왼쪽에서20px*/
+    left: 20px;
+    color: #AAAAAA;
+}
+
+.keyboard {
+    position: absolute;
+    top: 12px;
+    right: 47px;
+}
+
+.mic {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    color: #4F86EC;
+}
+
+.button {
+    padding: 13px;
+    margin: 15px 3px 10px 3px;
+    background-color: #F4F4F4;
+    border: none;
+    color: #6e6a6a;
+    font-weight: 500;
+}
+
+a {
+    color: #4d4fcf;
+}
+
+p {
+    font-weight: bold;
+    font-size: small;
+}
+
+table {
+    border: 2px solid;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+td {
+    border: 1px solid;
+    padding: 10px 5px;
+    background-color: yellow
+}
+
+th {
+    background-color: teal;
+    border: 1px solid black;
+    color: white
+}
+
+
+td:nth-child(1) {
+    width: 40%
+}
+
+table>:nth-child(1) {
+    border: 2px solid black;
+}
+
+#main {
+    padding: 100px;
+}
