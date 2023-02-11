@@ -68,7 +68,7 @@ p {
     font-size: small;
 }
 
-table {
+/* table {
     border: 2px solid;
     border-collapse: collapse;
     text-align: center;
@@ -93,7 +93,7 @@ td:nth-child(1) {
 
 table>:nth-child(1) {
     border: 2px solid black;
-}
+} */
 
 #main {
     padding: 100px;

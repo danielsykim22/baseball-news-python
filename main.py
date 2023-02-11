@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 import requests
 
 url = "https://"
-color = "<strong style='color:{0};'>{1}</strong>"
+color = "<strong class='uppercase tracking-wide text-sm text-green-500 font-semibold' style='color:{0};'>{1}</strong>"
 
 def obj_to_text(selector: str, soup: Element):
     return [s.text for s in soup.select(selector)]
@@ -27,6 +27,8 @@ options.add_argument("--headless")
 options.add_argument("--disable-dev-shm-usage")
 driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)
+
+dic = dict()
 
 def list_player(player_id):
     result2 = []
@@ -62,7 +64,7 @@ def list_player(player_id):
     atk_rate, amount_of_game, amount_of_hit, hit, nd, th, homerun, hit_point, point, steel, walk, str_out, out_rate, jangta, OPS, WAR = body[
         1][:15] + body[1][20:]
     body1 = [atk_rate, out_rate, jangta, OPS]
-    result2.append("<div style='font-size: 200%;'>")
+    result2.append("<div class='max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-3xl'>")
     result2.append(f"{team} {player_name}은(는) 2022 시즌 {datetime.now().strftime('%m월 %d일')} 기준 {amount_of_game:d}경기 {amount_of_hit:d}타수 {hit:d}안타 {homerun:d}홈런 {hit_point:d}타점 타율 {atk_rate:.3f} 출루율 {out_rate:.3f} 장타율 {jangta:.3f} OPS {OPS:.3f}을 기록했다. ")
     score = 0
     if amount_of_game/avg >= 0.9:
@@ -223,25 +225,25 @@ def list_player(player_id):
     else:
         result2.append(color.format("red",f"그냥 답이 없다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
     result2.append("통산 기록<br>")
-    result2.append("<table>")
-    result2.append("<tr>")
+    result2.append("<div class='overflow-x-auto'><table class='table-auto'>")
+    result2.append("<tr class='m-2 hover:bg-green-500'>")
     season = obj_to_text("#_careerStatsTitleList",soup)[0].split("\n")[1:-1]
     s_dict = {}
     record = ["시즌", "타율", "경기수", "타수", "안타", "2루타", "3루타", "홈런", "타점", "득점", "도루", "볼넷", "삼진", "출루율", "장타율", "OPS", "IsoP", "BAPIP", "wOBA", "wRC", "WPA", "WAR"]
     for rec in record:
-        result2.append(f"<th>{rec}")
+        result2.append(f"<th class='break-keep p-1 text-center hover:bg-blue-500'>{rec}")
     for i, s in enumerate(season):  
         s_dict[s] = body[i]
     result2.append("</tr>")
     j=0
     for k, v in s_dict.items():
-        result2.append("<tr>")
-        result2.append(f"<td>{season[j]}")
+        result2.append("<tr class='hover:bg-green-500'>")
+        result2.append(f"<td class='break-keep p-1 text-center hover:bg-blue-500'>{season[j]}")
         for x in v:
-            result2.append(f"<td>{x if x or x==0 else '-'}</td>")
+            result2.append(f"<td class='break-keep p-1 text-center hover:bg-blue-500'>{x if x or x==0 else '-'}</td>")
         result2.append("</tr>")
         j=j+1
-    result2.append("</table>")
+    result2.append("</table></div>")
     result2.append("</div>")
     return result2
 app = Flask(__name__)
@@ -257,7 +259,9 @@ def search():
         data = requests.get(f"https://ac.sports.naver.com/ac/player/kbo?&q_enc=UTF-8&st=1&r_lt=1&frm=search&r_format=json&r_enc=UTF-8&t_koreng=1&q={string}&_=1673074580608")
         data = data.json()['items'][0][0][1][0]
         string = data
-    return render_template("result.html", data="\n".join(list_player(string)))
+    if not dic.get(string):
+        dic[string] = list_player(string)
+    return render_template("result.html", data="\n".join(dic.get(string)))
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=80)
