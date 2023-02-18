@@ -1,10 +1,9 @@
 from datetime import datetime
 from time import sleep, time
 from xml.dom.minidom import Element
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import chromedriver_autoinstaller as auto
 from bs4 import BeautifulSoup as bs
-from matplotlib import pyplot as plt
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import requests
@@ -213,17 +212,19 @@ def list_player(player_id):
             result2.append(color.format("red",f"최근 10경기 타율 {s2/s1:.3f}로 타격감이 떨어지고 있다.\n"))
     result2.append("<br></>")
     if score >= 5.5:
-        result2.append(color.format("blue",f"올해 성적 총평으로는 리그를 지배하는 수준이다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
+        result2.append(color.format("blue",f"올해 성적 총평으로는 리그를 지배하는 수준이다.<br>올해 총점: {score+6.75:3f}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
     elif 3 <= score < 5.5:
-        result2.append(color.format("turquoise",f"올해 성적 총평으로는 엄청난 활약을 보여주고 있다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
+        result2.append(color.format("turquoise",f"올해 성적 총평으로는 엄청난 활약을 보여주고 있다.<br>올해 총점: {score+6.75:3f}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
     elif 0 <= score < 3:
-        result2.append(color.format("green",f"올해 성적 총평으로는 기대 이상의 준수한 활약을 하고 있다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
+        result2.append(color.format("green",f"올해 성적 총평으로는 기대 이상의 준수한 활약을 하고 있다.<br>올해 총점: {score+6.75:3f}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
     elif -3 <= score < 0:
-        result2.append(color.format("yellow",f"올해 성적 총평으로는 기대 이하의 아쉬운 성적을 내고 있다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
+        result2.append(color.format("yellow",f"올해 성적 총평으로는 기대 이하의 아쉬운 성적을 내고 있다.<br>올해 총점: {score+6.75:3f}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
     elif -5.5 <= score < -3:
-        result2.append(color.format("orange",f"올해 성적 총평으로는 많이 부진하고 있어 반전이 필요해 보인다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
+        result2.append(color.format("orange",f"올해 성적 총평으로는 많이 부진하고 있어 반전이 필요해 보인다.<br>올해 총점: {score+6.75:3f}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
     else:
-        result2.append(color.format("red",f"그냥 답이 없다.<br>올해 총점: {score+6.75}/13.75({(score+6.75)/13.75*100:.2f}%)</br>"))
+        result2.append(color.format("red",f"그냥 답이 없다.<br>올해 총점: {score+6.75:3f}/13.75({(score+6.75)/13.75*100:.3f}%)</br>"))
+    if amount_of_hit<=20:
+        result2.append("하지만 타수가 많이 적어서 아직은 지켜봐야 한다.<br>")
     result2.append("통산 기록<br>")
     result2.append("<div class='overflow-x-auto'><table class='table-auto'>")
     result2.append("<tr class='m-2 hover:bg-green-500'>")
@@ -252,17 +253,27 @@ app = Flask(__name__)
 def main_page():
     return render_template("index.html")
 
+@app.route("/auto")
+def auto():
+    string: str = request.args.get("name")
+    data = requests.get(f"https://ac.sports.naver.com/ac/player/kbo?&q_enc=UTF-8&st=1&r_lt=1&frm=search&r_format=json&r_enc=UTF-8&t_koreng=1&q={string}&_=1673074580608")
+    data = [{"name": value[0][0], "id": value[1][0]} for value in data.json()['items'][0]]
+    print(data)
+    return jsonify(response=data)
 @app.route("/result")
 def search():
     string:str = request.args.get("pid")
     if not string.isdigit():
         data = requests.get(f"https://ac.sports.naver.com/ac/player/kbo?&q_enc=UTF-8&st=1&r_lt=1&frm=search&r_format=json&r_enc=UTF-8&t_koreng=1&q={string}&_=1673074580608")
-        data = data.json()['items'][0][0][1][0]
+        try:
+            data = data.json()['items'][0][0][1][0]
+        except IndexError:
+            return render_template("error.html")
         string = data
     if not dic.get(string):
         dic[string] = list_player(string)
     return render_template("result.html", data="\n".join(dic.get(string)))
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", port=80)
+    app.run("0.0.0.0", port=8000)
 driver.close()

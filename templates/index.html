@@ -4,25 +4,26 @@
 <head>
     <meta charset="utf-8" />
     <script src="https://kit.fontawesome.com/7ab9e78da3.js" crossorigin="anonymous"></script>
-    <link href="{{ url_for('static', filename='css/style.css') }}?ver=1.17b" rel="stylesheet" type="text/css" />
+    <link href="{{ url_for('static', filename='css/style.css') }}?ver=1.18b" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
     <div class="all">
-        <img alt="weegle"
-            src="https://user-images.githubusercontent.com/61774575/95163201-34411c00-075c-11eb-9987-d6301acb4dab.png">
+        <img alt="KBO" src="https://eveil-arg.com/wp-content/uploads/2020/07/%ED%94%84%EB%A1%9C%EC%95%BC%EA%B5%AC1.jpg">
         <form action="/result" method="get">
             <div class="icon">
                 <input type="text" class="input" name="pid">
+                <ul id="related" class="hide"></ul>
                 <i class="fas fa-search search"></i>
                 <i class="fas fa-keyboard keyboard"></i>
                 <i class="fas fa-microphone mic"></i>
-                <button class="button">Weegle 검색</button>
+                <button class="button" type="submit">선수 전적 검색</button>
                 <button class="button">I'm feeling Lucky</button>
-                <p>Weegle 제공 서비스 : <a>English</a> </p>
+                <p>제공 서비스 : <a>Korean</a> </p>
             </div>
         </form>
     </div>
 </body>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
 
 </html>

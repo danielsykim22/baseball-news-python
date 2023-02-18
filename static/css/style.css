@@ -50,6 +50,25 @@ input {
     color: #4F86EC;
 }
 
+#related {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    list-style: none;
+    border-radius: 5px;
+    border: 1px solid #6e6a6a;
+    padding-right: 40px;
+}
+
+.hide {
+    visibility: hidden;
+}
+
+.relitem {
+    color: gray;
+    margin: 10px;
+}
+
 .button {
     padding: 13px;
     margin: 15px 3px 10px 3px;
@@ -60,7 +79,8 @@ input {
 }
 
 a {
-    color: #4d4fcf;
+    color: #5c5c5c;
+    text-decoration: none;
 }
 
 p {
