@@ -10,7 +10,7 @@ import requests
 
 url = "https://"
 color = "<strong class='uppercase tracking-wide text-sm text-green-500 font-semibold' style='color:{0};'>{1}</strong>"
-
+danlak = "<p class='my-0.5 text-xl'>{}</p>"
 def obj_to_text(selector: str, soup: Element):
     return [s.text for s in soup.select(selector)]
 
@@ -43,8 +43,16 @@ def list_player(player_id):
         f"https://sports.news.naver.com/kbaseball/record/index?category=kbo&year={datetime.now().year}")
     sleep(1)
     inner2 = driver.page_source
-
     soup2 = bs(inner2, "html.parser")
+
+    driver.get(
+        f"https://m.sports.naver.com/player/index?from=sports&playerId={player_id}&category=kbo&tab=profile")
+    sleep(1)
+    inner3 = driver.page_source
+    soup3 = bs(inner3, "html.parser")
+
+    head1 = obj_to_text("#content > div > div > div.cont_box > div > div > dl:nth-child(2) > dd:nth-child(4) > span", soup3)
+    head2 = obj_to_text("#content > div > div > div.cont_box > div > div > dl:nth-child(2) > dd:nth-child(2) > span", soup3)
     game = obj_to_float(
         "#regularTeamRecordList_table tr td:nth-child(3)", soup2)
     avg = sum(game)/len(game)
@@ -54,16 +62,20 @@ def list_player(player_id):
     player_name = player[0].split(" NO.")[0]
     team = soup.select_one("#_title_area > span > em:nth-child(1)").text
     head = obj_to_text("#_careerStatsTable th", soup)
-    head1 = ["AVG", "OBA", "SLG", "OPS"]
     body = soup.select("#_careerStatsTable > tbody > tr")
     # 0:타율 1:경기수 2:타수 3:안타 4:2루타 5:3루타 6:홈런 7:타점 8:득점 9:도루 10:볼넷 11:삼진 12:출루율 13:장타율 14:OPS 20:WAR
-
+    # result2.append(head1)#content > div > div > div.cont_box > div > div > dl:nth-child(2) > dd:nth-child(4) > span
     body = [[(float(b.text) if '.' in b.text else int(b.text)) if b.text != '-' else None for b in bo.select("td")]
             for bo in body]
     atk_rate, amount_of_game, amount_of_hit, hit, nd, th, homerun, hit_point, point, steel, walk, str_out, out_rate, jangta, OPS, WAR = body[
         1][:15] + body[1][20:]
-    body1 = [atk_rate, out_rate, jangta, OPS]
     result2.append("<div class='max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-3xl'>")
+    result2.append(danlak.format(f"이름:{player_name}"))
+    result2.append("<br>")
+    result2.append(danlak.format(f"출생:{head1[0]}"))
+    result2.append("<br>")
+    result2.append(danlak.format(f"신체:{head2[0]}"))
+    result2.append("<br>")
     result2.append(f"{team} {player_name}은(는) 2022 시즌 {datetime.now().strftime('%m월 %d일')} 기준 {amount_of_game:d}경기 {amount_of_hit:d}타수 {hit:d}안타 {homerun:d}홈런 {hit_point:d}타점 타율 {atk_rate:.3f} 출루율 {out_rate:.3f} 장타율 {jangta:.3f} OPS {OPS:.3f}을 기록했다. ")
     score = 0
     if amount_of_game/avg >= 0.9:
@@ -260,19 +272,20 @@ def auto():
     data = [{"name": value[0][0], "id": value[1][0]} for value in data.json()['items'][0]]
     print(data)
     return jsonify(response=data)
+
 @app.route("/result")
 def search():
     string:str = request.args.get("pid")
-    if not string.isdigit():
-        data = requests.get(f"https://ac.sports.naver.com/ac/player/kbo?&q_enc=UTF-8&st=1&r_lt=1&frm=search&r_format=json&r_enc=UTF-8&t_koreng=1&q={string}&_=1673074580608")
-        try:
+    try:    
+        if not string.isdigit():
+            data = requests.get(f"https://ac.sports.naver.com/ac/player/kbo?&q_enc=UTF-8&st=1&r_lt=1&frm=search&r_format=json&r_enc=UTF-8&t_koreng=1&q={string}&_=1673074580608")
             data = data.json()['items'][0][0][1][0]
-        except IndexError:
-            return render_template("error.html")
-        string = data
-    if not dic.get(string):
-        dic[string] = list_player(string)
-    return render_template("result.html", data="\n".join(dic.get(string)))
+            string = data
+        if not dic.get(string):
+            dic[string] = list_player(string)
+        return render_template("result.html", data="\n".join(dic.get(string)))
+    except Exception as e:
+        return render_template("error.html")
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=8000)

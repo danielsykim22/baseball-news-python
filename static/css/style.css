@@ -3,7 +3,6 @@
     /*width와height 
                              padding과 border크기를 포함하도록(margin값제외)*/
 }
-
 .all {
     width: 900px;
     /*모든 content를 가로 900px안에 넣을 것*/
